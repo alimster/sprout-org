@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import { ChevronRight, User } from "lucide-react";
 import type { OrgNode } from "@/lib/org-tree";
 import { cn } from "@/lib/utils";
