@@ -19,6 +19,11 @@
  */
 
 @theme inline {
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --shadow-panel: 0 1px 2px oklch(0.25 0.03 250 / 0.06), 0 8px 24px oklch(0.25 0.03 250 / 0.06);
+  --shadow-ring: inset 0 0 0 1px var(--border);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
