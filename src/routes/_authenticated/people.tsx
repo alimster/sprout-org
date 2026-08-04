@@ -73,7 +73,7 @@ function PeoplePage() {
     manager_email: "",
     role: "member" as "admin" | "member",
   });
-  const [csvErrors, setCsvErrors] = useState<{ fatal?: string; errors: RowError[] } | null>(null);
+  const [csvErrors, setCsvErrors] = useState<{ fatal?: string | undefined; errors: RowError[] } | null>(null);
 
   const invitations = useQuery({
     queryKey: ["invitations"],
