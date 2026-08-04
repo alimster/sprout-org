@@ -444,8 +444,8 @@ function EditDialog({
           }}
         >
           <div className="space-y-2 sm:col-span-2">
-            <Label>Full name</Label>
-            <Input
+            <Label htmlFor="f-full_name">Full name</Label>
+            <Input id="f-full_name"
               value={form.full_name}
               disabled={!isAdmin}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
@@ -453,31 +453,31 @@ function EditDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>Job title</Label>
-            <Input
+            <Label htmlFor="f-title">Job title</Label>
+            <Input id="f-title"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label>Department</Label>
-            <Input
+            <Label htmlFor="f-department">Department</Label>
+            <Input id="f-department"
               value={form.department}
               onChange={(e) => setForm({ ...form, department: e.target.value })}
             />
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label>Email</Label>
-            <Input value={member.email} disabled readOnly />
+            <Label htmlFor="f-email">Email</Label>
+            <Input id="f-email" value={member.email} disabled readOnly />
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label>Manager</Label>
+            <Label htmlFor="f-manager">Manager</Label>
             <Select
               value={form.manager_id}
               disabled={!isAdmin}
               onValueChange={(v) => setForm({ ...form, manager_id: v })}
             >
-              <SelectTrigger>
+              <SelectTrigger id="f-manager">
                 <SelectValue placeholder="No manager" />
               </SelectTrigger>
               <SelectContent>
@@ -562,8 +562,8 @@ function InviteDialog({
           }}
         >
           <div className="space-y-2">
-            <Label>Email</Label>
-            <Input
+            <Label htmlFor="f-email">Email</Label>
+            <Input id="f-email"
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -571,42 +571,42 @@ function InviteDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>Full name</Label>
-            <Input
+            <Label htmlFor="f-full_name">Full name</Label>
+            <Input id="f-full_name"
               value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label>Job title</Label>
-            <Input
+            <Label htmlFor="f-title">Job title</Label>
+            <Input id="f-title"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label>Department</Label>
-            <Input
+            <Label htmlFor="f-department">Department</Label>
+            <Input id="f-department"
               value={form.department}
               onChange={(e) => setForm({ ...form, department: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label>Manager email</Label>
-            <Input
+            <Label htmlFor="f-manager_email">Manager email</Label>
+            <Input id="f-manager_email"
               type="email"
               value={form.manager_email}
               onChange={(e) => setForm({ ...form, manager_email: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label>Role</Label>
+            <Label htmlFor="f-role">Role</Label>
             <Select
               value={form.role}
               onValueChange={(v) => setForm({ ...form, role: v as "admin" | "member" })}
             >
-              <SelectTrigger>
+              <SelectTrigger id="f-role">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
