@@ -27,6 +27,12 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
           <span className="font-display text-base font-semibold tracking-tight">Northwind Ops</span>
         </Link>
         <nav className="flex items-center gap-1">
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/team">
+              <Network className="size-4" />
+              Team
+            </Link>
+          </Button>
           {isAdmin && (
             <Button asChild variant="ghost" size="sm">
               <Link to="/people">
@@ -35,6 +41,7 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
               </Link>
             </Button>
           )}
+
           <Button variant="ghost" size="sm" onClick={signOut}>
             <LogOut className="size-4" />
             Sign out
