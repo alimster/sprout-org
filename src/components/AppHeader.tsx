@@ -28,6 +28,12 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
         </Link>
         <nav className="flex items-center gap-1">
           <Button asChild variant="ghost" size="sm">
+            <Link to="/work">
+              <ClipboardList className="size-4" />
+              Work
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
             <Link to="/team">
               <Network className="size-4" />
               Team
