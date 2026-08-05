@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Network, Users } from "lucide-react";
+import { FileText, LogOut, Network, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +31,12 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
             <Link to="/team">
               <Network className="size-4" />
               Team
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/documents">
+              <FileText className="size-4" />
+              Documents
             </Link>
           </Button>
           {isAdmin && (

@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          detail: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          detail?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          detail?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          assigned_signer_id: string | null
+          created_at: string
+          file_path: string
+          id: string
+          name: string
+          notes: string | null
+          signed_at: string | null
+          status: Database["public"]["Enums"]["document_status"]
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          assigned_signer_id?: string | null
+          created_at?: string
+          file_path: string
+          id?: string
+          name: string
+          notes?: string | null
+          signed_at?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          assigned_signer_id?: string | null
+          created_at?: string
+          file_path?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          signed_at?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_assigned_signer_id_fkey"
+            columns: ["assigned_signer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -142,6 +234,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_delete_document_path: {
+        Args: { _path: string; _user_id: string }
+        Returns: boolean
+      }
+      can_read_document: {
+        Args: { _doc_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_read_document_path: {
+        Args: { _path: string; _user_id: string }
+        Returns: boolean
+      }
       get_pending_invitation: {
         Args: { _email: string }
         Returns: {
@@ -165,6 +269,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "member"
+      document_status: "pending" | "signed" | "rejected"
       invitation_status: "pending" | "accepted" | "revoked"
     }
     CompositeTypes: {
@@ -294,6 +399,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member"],
+      document_status: ["pending", "signed", "rejected"],
       invitation_status: ["pending", "accepted", "revoked"],
     },
   },
