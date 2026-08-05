@@ -33,6 +33,12 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
               Team
             </Link>
           </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/documents">
+              <FileText className="size-4" />
+              Documents
+            </Link>
+          </Button>
           {isAdmin && (
             <Button asChild variant="ghost" size="sm">
               <Link to="/people">
