@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ClipboardList, LogOut, Network, Users } from "lucide-react";
+import { ClipboardList, FileText, LogOut, Network, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +31,12 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
             <Link to="/work">
               <ClipboardList className="size-4" />
               Work
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/documents">
+              <FileText className="size-4" />
+              Documents
             </Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
