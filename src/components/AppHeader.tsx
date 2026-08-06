@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ClipboardList, LogOut, Network, Users } from "lucide-react";
+import { ClipboardList, FileText, LogOut, Network, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
