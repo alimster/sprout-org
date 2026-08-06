@@ -141,7 +141,7 @@ function DocumentsPage() {
       const path = buildStoragePath(profile.id, file.name);
       const { error: uploadError } = await supabase.storage
         .from("documents")
-        .upload(path, file, { contentType: file.type || undefined });
+        .upload(path, file, file.type ? { contentType: file.type } : undefined);
       if (uploadError) throw uploadError;
 
       const { data, error } = await supabase
