@@ -2,6 +2,10 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Download, Trash2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { InlineError } from "@/components/ErrorPanel";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -40,6 +44,8 @@ export function DocumentDetailDialog({
   const queryClient = useQueryClient();
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
 
   const canDecide =
     !!currentUserId && (isAdmin || document.assigned_signer_id === currentUserId) &&
@@ -185,13 +191,15 @@ export function DocumentDetailDialog({
               <Button
                 size="sm"
                 variant="ghost"
+                className="text-destructive hover:text-destructive"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate()}
+                onClick={() => setConfirmingDelete(true)}
               >
                 <Trash2 className="size-4" />
                 Delete
               </Button>
             )}
+
           </div>
 
           {rejecting && (
@@ -216,23 +224,39 @@ export function DocumentDetailDialog({
 
           <div>
             <p className="label-caps">History</p>
-            <ul className="mt-2 space-y-2">
-              {(activityQuery.data ?? []).map((entry) => (
-                <li key={entry.id} className="text-sm">
-                  <span className="font-medium">
-                    {(entry.actor_id && names.get(entry.actor_id)) ?? "Someone"}
-                  </span>{" "}
-                  <span className="text-muted-foreground">
-                    {DOCUMENT_ACTIVITY_LABEL[entry.action] ?? entry.action}
-                    {entry.detail ? ` — ${entry.detail}` : ""} · {formatDateTime(entry.created_at)}
-                  </span>
-                </li>
-              ))}
-              {(activityQuery.data ?? []).length === 0 && (
-                <li className="text-sm text-muted-foreground">Nothing recorded yet.</li>
-              )}
-            </ul>
+            {activityQuery.isPending ? (
+              <div className="mt-2 space-y-2">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            ) : activityQuery.isError ? (
+              <div className="mt-2">
+                <InlineError
+                  message="Couldn't load this document's history."
+                  onRetry={() => void activityQuery.refetch()}
+                />
+              </div>
+            ) : (
+              <ul className="mt-2 space-y-2">
+                {(activityQuery.data ?? []).map((entry) => (
+                  <li key={entry.id} className="text-sm">
+                    <span className="font-medium">
+                      {(entry.actor_id && names.get(entry.actor_id)) ?? "Someone"}
+                    </span>{" "}
+                    <span className="text-muted-foreground">
+                      {DOCUMENT_ACTIVITY_LABEL[entry.action] ?? entry.action}
+                      {entry.detail ? ` — ${entry.detail}` : ""} ·{" "}
+                      {formatDateTime(entry.created_at)}
+                    </span>
+                  </li>
+                ))}
+                {(activityQuery.data ?? []).length === 0 && (
+                  <li className="text-sm text-muted-foreground">Nothing recorded yet.</li>
+                )}
+              </ul>
+            )}
           </div>
+
         </div>
 
         <DialogFooter>
@@ -241,6 +265,21 @@ export function DocumentDetailDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {confirmingDelete && (
+        <ConfirmDialog
+          title={`Delete "${document.name}"?`}
+          body="The file and its history are permanently removed. This can't be undone."
+          confirmLabel="Delete document"
+          busy={remove.isPending}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => {
+            setConfirmingDelete(false);
+            remove.mutate();
+          }}
+        />
+      )}
     </Dialog>
+
   );
 }

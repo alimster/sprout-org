@@ -5,7 +5,9 @@ import { Activity, ClipboardList, FileSignature, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppHeader } from "@/components/AppHeader";
+import { ErrorPanel, InlineError, errorMessage } from "@/components/ErrorPanel";
 import { Skeleton } from "@/components/ui/skeleton";
+
 import {
   ACTIVITY_LABEL,
   MY_WORK_STATUSES,
@@ -94,6 +96,14 @@ function Dashboard() {
   const documents = documentsQuery.data ?? [];
   const people = peopleQuery.data ?? [];
 
+  // A failed fetch must never render as a confident "0" — hide the numbers instead.
+  const summaryError = tasksQuery.isError || documentsQuery.isError || peopleQuery.isError;
+  const summaryLoading =
+    tasksQuery.isPending || documentsQuery.isPending || peopleQuery.isPending;
+  const summaryFetching =
+    tasksQuery.isFetching || documentsQuery.isFetching || peopleQuery.isFetching;
+
+
   const myTasksByStatus = useMemo(() => {
     const mine = tasks.filter((t) => t.assignee_id && t.assignee_id === userId);
     return MY_WORK_STATUSES.map((status) => ({
@@ -150,7 +160,7 @@ function Dashboard() {
     return (
       <div className="min-h-screen bg-background">
         <AppHeader isAdmin={isAdmin} />
-        <main className="mx-auto max-w-5xl space-y-4 px-6 py-12">
+        <main className="mx-auto max-w-5xl space-y-4 px-4 py-8 sm:px-6 sm:py-12">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-40 w-full" />
           <Skeleton className="h-40 w-full" />
@@ -162,7 +172,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader isAdmin={isAdmin} />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <p className="label-caps">Signed in as</p>
         <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">
           {profile?.full_name || profile?.email || "—"}
@@ -171,8 +181,33 @@ function Dashboard() {
           {profile?.title || "No title yet"} · {role ?? "no role"}
         </p>
 
+        {summaryError ? (
+          <div className="mt-10">
+            <ErrorPanel
+              title="We couldn't load your summary"
+              message={errorMessage(
+                tasksQuery.error ?? documentsQuery.error ?? peopleQuery.error,
+                "The counts below would have been wrong, so we've hidden them.",
+              )}
+              retrying={summaryFetching}
+              onRetry={() => {
+                void tasksQuery.refetch();
+                void documentsQuery.refetch();
+                void peopleQuery.refetch();
+              }}
+            />
+          </div>
+        ) : summaryLoading ? (
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} className="h-44 w-full" />
+            ))}
+          </div>
+        ) : (
+          <>
         <section className="mt-10">
           <h2 className="font-display text-lg font-semibold tracking-tight">Your summary</h2>
+
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <div className="panel p-5">
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -276,6 +311,9 @@ function Dashboard() {
             </div>
           </div>
         </section>
+        </>
+        )}
+
 
         <section className="mt-10">
           <h2 className="font-display text-lg font-semibold tracking-tight">Recent activity</h2>
@@ -285,7 +323,15 @@ function Dashboard() {
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
+            ) : activityQuery.isError ? (
+              <div className="p-5">
+                <InlineError
+                  message={errorMessage(activityQuery.error, "Couldn't load recent activity.")}
+                  onRetry={() => void activityQuery.refetch()}
+                />
+              </div>
             ) : feed.length === 0 ? (
+
               <p className="p-5 text-sm text-muted-foreground">
                 No activity yet. Create a task or upload a document to get started.
               </p>
