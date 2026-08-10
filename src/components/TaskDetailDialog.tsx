@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Trash2 } from "lucide-react";
+import { InlineError } from "@/components/ErrorPanel";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useTaskActions } from "@/hooks/use-task-actions";
 import {
@@ -38,6 +41,8 @@ export function TaskDetailDialog({ task, names, currentUserId, isAdmin, onClose 
   const [declining, setDeclining] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
 
   const activity = useQuery({
     queryKey: ["task-activity", task.id],
@@ -190,7 +195,13 @@ export function TaskDetailDialog({ task, names, currentUserId, isAdmin, onClose 
               <Skeleton className="h-4 w-3/4" />
               <Skeleton className="h-4 w-2/3" />
             </div>
+          ) : activity.isError ? (
+            <InlineError
+              message="Couldn't load this task's activity."
+              onRetry={() => void activity.refetch()}
+            />
           ) : (activity.data?.length ?? 0) === 0 ? (
+
             <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
           ) : (
             <ol className="space-y-3 border-l border-border pl-4">
