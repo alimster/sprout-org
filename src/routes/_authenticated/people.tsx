@@ -7,7 +7,10 @@ import { Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppHeader } from "@/components/AppHeader";
+import { ErrorPanel, errorMessage } from "@/components/ErrorPanel";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { parseInviteCsv, type InviteRow, type RowError } from "@/lib/csv";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,6 +77,8 @@ function PeoplePage() {
     role: "member" as "admin" | "member",
   });
   const [csvErrors, setCsvErrors] = useState<{ fatal?: string | undefined; errors: RowError[] } | null>(null);
+  const [revoking, setRevoking] = useState<Invitation | null>(null);
+
 
   const invitations = useQuery({
     queryKey: ["invitations"],
@@ -181,7 +186,7 @@ function PeoplePage() {
     return (
       <div className="min-h-screen bg-background">
         <AppHeader isAdmin={false} />
-        <main className="mx-auto max-w-5xl px-6 py-12">
+        <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
           <Skeleton className="h-64 w-full" />
         </main>
       </div>
@@ -205,7 +210,7 @@ function PeoplePage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader isAdmin />
-      <main className="mx-auto max-w-5xl space-y-8 px-6 py-12">
+      <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
         <div>
           <h1 className="text-2xl font-semibold">People</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -346,6 +351,19 @@ function PeoplePage() {
                   </TableCell>
                 </TableRow>
               )}
+              {invitations.isError && (
+                <TableRow>
+                  <TableCell colSpan={6} className="p-5">
+                    <ErrorPanel
+                      title="We couldn't load the invitations"
+                      message={errorMessage(invitations.error)}
+                      onRetry={() => void invitations.refetch()}
+                      retrying={invitations.isFetching}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+
               {invitations.data?.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
@@ -369,7 +387,7 @@ function PeoplePage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setStatus.mutate({ id: invite.id, status: "revoked" })}
+                        onClick={() => setRevoking(invite)}
                       >
                         Revoke
                       </Button>
@@ -389,6 +407,21 @@ function PeoplePage() {
             </TableBody>
           </Table>
         </section>
+
+        {revoking && (
+          <ConfirmDialog
+            title={`Revoke the invitation for ${revoking.email}?`}
+            body="They won't be able to create an account with that email until you re-invite them. Anyone who already signed up keeps their account."
+            confirmLabel="Revoke invitation"
+            busy={setStatus.isPending}
+            onCancel={() => setRevoking(null)}
+            onConfirm={() => {
+              setStatus.mutate({ id: revoking.id, status: "revoked" });
+              setRevoking(null);
+            }}
+          />
+        )}
+
       </main>
     </div>
   );

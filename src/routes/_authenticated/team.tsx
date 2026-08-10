@@ -8,7 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppHeader } from "@/components/AppHeader";
 import { OrgChart } from "@/components/OrgChart";
+import { ErrorPanel, errorMessage } from "@/components/ErrorPanel";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { buildOrgTree, countNodes, descendantIds, type TeamMember } from "@/lib/org-tree";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -193,7 +196,7 @@ function TeamPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader isAdmin={isAdmin} />
-      <main className="mx-auto max-w-5xl space-y-8 px-6 py-12">
+      <main className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold">Team</h1>
@@ -231,7 +234,15 @@ function TeamPage() {
               <Skeleton key={i} className="h-24 w-full" />
             ))}
           </div>
+        ) : team.isError ? (
+          <ErrorPanel
+            title="We couldn't load the team directory"
+            message={errorMessage(team.error)}
+            onRetry={() => void team.refetch()}
+            retrying={team.isFetching}
+          />
         ) : members.length === 0 ? (
+
           <EmptyState isAdmin={isAdmin} onInvite={() => setInviting(true)} />
         ) : (
           <>
@@ -411,6 +422,8 @@ function EditDialog({
     manager_id: member.manager_id ?? NONE,
     is_active: member.is_active,
   });
+  const [deactivating, setDeactivating] = useState<z.infer<typeof editSchema> | null>(null);
+
 
   // Nobody in this person's own sub-tree can be their manager — that's a cycle.
   const blocked = useMemo(() => descendantIds(members, member.id), [members, member.id]);
@@ -440,9 +453,15 @@ function EditDialog({
               toast.error(parsed.error.issues[0]!.message);
               return;
             }
+            // Deactivating removes someone's access — always confirm first.
+            if (isAdmin && member.is_active && !parsed.data.is_active) {
+              setDeactivating(parsed.data);
+              return;
+            }
             onSave(parsed.data);
           }}
         >
+
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="f-full_name">Full name</Label>
             <Input id="f-full_name"
@@ -517,9 +536,25 @@ function EditDialog({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      {deactivating && (
+        <ConfirmDialog
+          title={`Deactivate ${member.full_name}?`}
+          body="They stay in the records and keep their history, but they'll be hidden from the directory and can no longer be assigned work or documents. You can reactivate them later."
+          confirmLabel="Deactivate"
+          busy={pending}
+          onCancel={() => setDeactivating(null)}
+          onConfirm={() => {
+            const values = deactivating;
+            setDeactivating(null);
+            onSave(values);
+          }}
+        />
+      )}
     </Dialog>
   );
 }
+
 
 function InviteDialog({
   pending,

@@ -9,6 +9,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useTaskActions } from "@/hooks/use-task-actions";
 import { AppHeader } from "@/components/AppHeader";
 import { TaskDetailDialog } from "@/components/TaskDetailDialog";
+import { ErrorPanel, InlineError, errorMessage } from "@/components/ErrorPanel";
+
 import {
   formatDate,
   MY_WORK_STATUSES,
@@ -157,7 +159,7 @@ function WorkPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader isAdmin={isAdmin} />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="label-caps">Work</p>
@@ -183,12 +185,31 @@ function WorkPage() {
           </Tabs>
         </div>
 
+        {peopleQuery.isError && (
+          <div className="mt-4">
+            <InlineError
+              message="Couldn't load the team list, so assigning is unavailable right now."
+              onRetry={() => void peopleQuery.refetch()}
+            />
+          </div>
+        )}
+
         {tasksQuery.isLoading ? (
           <div className="mt-8 space-y-3">
             <Skeleton className="h-24 w-full" />
             <Skeleton className="h-24 w-full" />
           </div>
+        ) : tasksQuery.isError ? (
+          <div className="mt-8">
+            <ErrorPanel
+              title="We couldn't load the work queue"
+              message={errorMessage(tasksQuery.error)}
+              onRetry={() => void tasksQuery.refetch()}
+              retrying={tasksQuery.isFetching}
+            />
+          </div>
         ) : view === "needed" ? (
+
           <section className="mt-8 space-y-3">
             {workNeeded.length === 0 ? (
               <EmptyState

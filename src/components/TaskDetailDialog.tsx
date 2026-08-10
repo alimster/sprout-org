@@ -222,7 +222,7 @@ export function TaskDetailDialog({ task, names, currentUserId, isAdmin, onClose 
               variant="ghost"
               className="text-destructive hover:text-destructive"
               disabled={busy}
-              onClick={() => run(() => actions.remove(task), true)}
+              onClick={() => setConfirmingDelete(true)}
             >
               <Trash2 className="size-4" />
               Delete task
@@ -230,6 +230,21 @@ export function TaskDetailDialog({ task, names, currentUserId, isAdmin, onClose 
           </div>
         )}
       </DialogContent>
+
+      {confirmingDelete && (
+        <ConfirmDialog
+          title={`Delete "${task.title}"?`}
+          body="The task and its activity history are permanently removed. This can't be undone."
+          confirmLabel="Delete task"
+          busy={busy}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => {
+            setConfirmingDelete(false);
+            void run(() => actions.remove(task), true);
+          }}
+        />
+      )}
     </Dialog>
+
   );
 }

@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { AppHeader } from "@/components/AppHeader";
 import { DocumentDetailDialog } from "@/components/DocumentDetailDialog";
+import { ErrorPanel, InlineError, errorMessage } from "@/components/ErrorPanel";
+
 import { formatDate } from "@/lib/tasks";
 import {
   ACCEPT_ATTRIBUTE,
@@ -179,7 +181,7 @@ function DocumentsPage() {
   return (
     <div className="min-h-screen bg-background">
       <AppHeader isAdmin={isAdmin} />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="label-caps">Documents</p>
@@ -259,12 +261,31 @@ function DocumentsPage() {
           </div>
         </div>
 
+        {peopleQuery.isError && (
+          <div className="mt-4">
+            <InlineError
+              message="Couldn't load the team list, so signer names and filters may be incomplete."
+              onRetry={() => void peopleQuery.refetch()}
+            />
+          </div>
+        )}
+
         {documentsQuery.isLoading ? (
           <div className="mt-8 space-y-3">
             <Skeleton className="h-20 w-full" />
             <Skeleton className="h-20 w-full" />
           </div>
+        ) : documentsQuery.isError ? (
+          <div className="mt-8">
+            <ErrorPanel
+              title="We couldn't load your documents"
+              message={errorMessage(documentsQuery.error)}
+              onRetry={() => void documentsQuery.refetch()}
+              retrying={documentsQuery.isFetching}
+            />
+          </div>
         ) : filtered.length === 0 ? (
+
           <div className="panel mt-8 flex flex-col items-center gap-2 p-12 text-center">
             <FileText className="size-8 text-muted-foreground" />
             <h2 className="font-display text-lg font-semibold">No documents here</h2>
