@@ -15,6 +15,7 @@ export type Task = {
   due_date: string | null;
   completed_at: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 export type ActivityEntry = {
@@ -28,7 +29,17 @@ export type ActivityEntry = {
 };
 
 export const TASK_SELECT =
-  "id, title, description, priority, status, created_by, assignee_id, due_date, completed_at, created_at";
+  "id, title, description, priority, status, created_by, assignee_id, due_date, completed_at, created_at, updated_at";
+
+/** Order used to group the "I raised" board. */
+export const RAISED_STATUSES: TaskStatus[] = [
+  "unassigned",
+  "assigned",
+  "accepted",
+  "in_progress",
+  "completed",
+  "declined",
+];
 
 export const PRIORITIES: TaskPriority[] = ["high", "medium", "low"];
 
